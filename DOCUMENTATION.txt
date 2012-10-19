@@ -1,0 +1,54 @@
+Introduction to PIE algorithms, by Chris Wilson
+
+The Predictable Information Elimination algorithm is a method for extracting data from
+a large series of related documents that contain significant typos, recognition errors, and other
+mutations that make traditional means document analysis difficult. It was developed to extract
+data from the FCC's new database of political ad buys in top-50 broadcast markets. These documents--
+about 30,000 PDF files as of mid-October 2012--are not machine-readable and arrive with very little
+useful metadata. 
+
+Thanks to the work of ProPublica and the Sunlight Foundation, all 30K pdfs were uploaded to 
+Document Cloud and run through OCR software in the process. Since most of the scanned documents present
+the ad buy data in tables, the text files that result from the character recognition are 
+structured chaotically, to put it politely. 
+
+--STEP 1--
+The PIE algorithm begins by defining "predictable information," data in predictable formats that can
+be blocked off to narrow the search for unpredictable information. In this case, this involved dollar amounts, 
+dates, timestamps, station call letters, certain procedural words common to television bureaucracy, and a 
+handful of other regular character configurations. Regular expressions are an obvious way to define the
+predictable information, but any method is find. Even a very long list of context-specific stop words would
+qualify just fine.
+
+--STEP 2--
+Define a method of removing the predictable information from consideration. Informally, this could be as 
+simple as crossing out words we don't want in a methodical way. Deletion is the simplest strategy, but that
+prevents us from easily checking that no valuable information was washed away in the process. The only
+requirement is that the remaining information by easy to distinguish after the elimination process. For 
+my purposes, because I wanted to easily visualize all the data I eliminated, I wrapped every type of predictable 
+information in <span> tags with a corresponding CSS class, which I could then view in a browser. It makes for
+somewhat chromatically challenging reading material. 
+
+In this case, I could then look for any match of "/span>(.*?)<" to find the leftover information. 
+
+The ability of most languages to pass the results of regular expression match to a function for further 
+evaluation offers a convenient way to add a second evaluation process to the first step.
+
+--STEP 3--
+Now that we have reduced the corpus to the smallest possible morsels of data, we apply a filter to extract 
+all candidates for the information we want. Since my purpose for this project was to extract the names of
+television shows, this was a fairly simple match for alphanumeric characters and spaces. 
+
+--STEP 4--
+Now we have to judge the candidates in some way. There are two strategies here based on the universe of target data. 
+Since I was looking for a small universe of TV show names, it made sense here to add shows to a list as I noticed them 
+and iteratively compare every candidate in every document against this list. For larger, less defined families of information,
+it will be necessary to tailor the patterns in Steps 1 and 3. 
+
+For the list-comparison method with noisy data, it's useful to run a fuzzy match on each candidates against each item in the 
+list, though this is incredibly slow. 
+
+--NOTES--
+The beauty of this process is that it is highly tolerant of false positives for messy data, so long as it generally
+breaks up the corpus into manageable chunks. We might think of this as the shotgun sequencing of natural language
+processing.
